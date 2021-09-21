@@ -1,0 +1,210 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+//Variáveis globais
+int IDUser[1000];
+char nomeUser[1000];
+char adressUser[1000][70];
+bool vacina[1000];
+
+int quantidadeUser;
+int pontoVetorEmail;
+int pontoVetorID;
+
+char emailUser[1000];//Checar se há o caractere `@`
+
+char sexoUser[1000];//Apenas palavras completas, sem abreviações - Feminino - Masculino - Não Declarado
+
+float alturaUser[1000];//Entre 1m a 2m
+//Fim das variáveis globais
+
+//Declaração das funções
+int createID();
+int menu();
+int cadastraUser();
+int editUser();
+int excludeUser();
+int printUser();
+int backupUser();
+int restoreUser();
+int buscaUser();
+int validaEmail();
+int validaID();
+int buscaEmail();
+int encerra();
+int buscaID();
+//Término de declaração de variáveis
+
+//Criação das funções
+int createID(){//criar o ID randômicamente
+
+    return 0;
+}
+
+int menu(){//Menu
+    int escolha;
+
+    printf("Bem vindo ao menu\nEscolha a opcao que deseja");
+    printf("Digite 1 - Caso queira registrar novos usuarios\nDigite 2 - Caso queira excluir algum usuario\nDigite 3 - Caso queira procurar um usuario\nDigite 4 - Caso queira editar os dados de algum usuario\nDigite 5 - Caso queira restaurar algum usuario\nDigite 6 - Caso queira encerrar a sessao");
+    scanf("%d", &escolha);
+
+    switch (escolha){
+    // case 1:
+    //     cadastraUser();
+    //     break;
+    // case 2:
+    //     excludeUser();
+    //     break;
+    // case 3:
+    //     buscaUser();
+    //     break;
+    case 4:
+        menuEditUser();
+        break;
+    case 5:
+        restoreUser();
+        break;
+    case 6:
+        encerra();
+        break;
+    
+    default:
+        printf("Opcao invalida\nTente novamente");
+        break;
+    }
+
+    return 0;
+}
+
+int cadastraUser(){//Cadastrar o usuário 
+
+    return 0;
+}
+
+int excludeUser(){//Excluir os dados do usuário
+
+    return 0;
+}
+
+int printUser(){//Printar na tela limpa os dados do usuário
+
+    return 0;
+}
+
+int backupUser(){//Salvar os dados do usuário num backup
+
+    return 0;
+}
+
+int restoreUser(){//Restaurar os dados do usuário salvos no backup
+
+    return 0;
+}
+
+int buscaUser(){//Responsavel por buscar os dados do usuario
+    int escolha;
+
+    printf("Deseja encontrar o usuario atraves do e-mail (1) ou atraves do ID (2)?");
+    scanf("%d", &escolha);
+
+    switch (escolha){
+    case 1:
+        buscaEmail();
+
+        if (buscaEmail == 1){
+            printf("E-mail nao presente no banco de dados");
+            menu();
+        }
+        break;
+        
+    case 2:
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+int validaEmail(){//Valida se há @ no email
+
+    return 0;
+}
+
+int buscaEmail(){//Busca nos dados se há um email igual
+    char emailBusca;
+    int escolha;
+
+    do{
+        printf("Qual o e-mail?");
+        scanf("%s", emailBusca);
+
+        validaEmail();
+
+        if (validaEmail == 1){
+            printf("E-mail invalido\n");
+            printf("Deseja voltar ao menu (1) ou tentar novamente (2)?");
+            scanf("%d", &escolha);
+
+            switch (escolha)
+            {
+            case 1:
+                menu();
+                break;
+            case 2:
+                buscaEmail();
+                break;
+            
+            default: 
+                break;
+            }
+        }
+        
+    } while (validaEmail == 1);
+
+    for (int i = 0; i != quantidadeUser; i++){
+        if (emailBusca == emailUser[i]){
+            pontoVetorEmail = i;
+        }
+    }
+    return pontoVetorEmail;
+}
+
+int buscaID(){//Busca nos dados se há um ID igual
+    int IDBusca;
+
+    printf("Qual o ID?");
+    scanf("%d", &IDBusca);
+
+    for (int i = 0; i != quantidadeUser; i++){
+        if (IDBusca == IDUser[i]){
+            pontoVetorID = i;
+        }
+        else{
+        printf("Valor n encontrado");
+        }
+    }
+
+    return pontoVetorID;
+}
+
+int encerra(){//Encerra e se despede
+    printf("Agradecemos pela preferencia\n--A lista final de usuarios--");
+    for (int i = 0; i < quantidadeUser; i++){
+        printf("Cadastro ID: %d\nNome do usuario: %s\nEndereco: %s\nVacinado: %s\nAltura: %d\nE-mail: %s\nSexo: %s\n",IDUser[i], nomeUser[i], adressUser[i], vacina[i],alturaUser[i]);
+    }
+
+    return 0;
+}
+//Término das criações das funções
+
+int main(){
+
+
+    menu();
+
+    return 0;
+}

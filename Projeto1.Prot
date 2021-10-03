@@ -16,6 +16,12 @@ void pegaEndereco(char *criaEndereco);
 void pegaVacina(bool *criaVacina);
 void pegaEmail(char *criaEmail);
 void printUser(int *buscaID, int *printId,char *printNome[][100], char *printEmail[][1000], char *printSexo[][100], char *printEndereco[][100], double *printAltura, bool *printVacina, int *printIdade);
+void excludeUser(int *excludeID, char *excludeNome[][100], char *excludeEmail[][100], char *excludeSexo[][100], char *excludeEndereco[][100], double *excludeAltura, bool *excludeVacina, int *excludeIdade);
+void editUser();
+void backupUser(int backupOption, int *id, char *nome[][100], char *email[][100], char *sexo[][100], char *endereco[][100], double *altura, bool *vacina);
+void encerra();
+int buscaID();
+int buscaEmail();
 
 int quantUser = 0;
 //Término de declaração de variáveis
@@ -449,5 +455,3 @@ int buscaEmail(){
     } while (escolha == 1);
 }
 //Término das criações das funções
-
-

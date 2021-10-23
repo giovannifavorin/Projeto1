@@ -42,11 +42,11 @@ void pegaVacina(dadosUser *CadUser);
 void pegaEmail(dadosUser *CadUser);
 void limpaTela();
 void printUser(dadosUser *printUser);
-void excludeUser(dadosUser *exUser, contadores *exCounts);//fazer
-void editUser(dadosUser *editUser, contadores *editCounts);//fazer
+void excludeUser(dadosUser *exUser);//fazer
+void editUser(dadosUser *editUser);//fazer
 // void backupUser();
-int buscaID(dadosUser *User);//fazer
-int buscaEmail(dadosUser *User);//fazer
+void buscaID(dadosUser *User, contadores *Counts);//fazer
+void buscaEmail(dadosUser *User, contadores *Counts);//fazer
 
 //Fim das Funções
 
@@ -112,10 +112,18 @@ int main(){
                         switch (choices.buscaExc)
                         {
                         case 1:
-                            excludeUser(&cadUser[buscaID(&cadUser)], &count);
+                            buscaID(&cadUser, &count);
+                            for (int i = count.quantUsers; i > count.posExc; i--){
+                                excludeUser(&cadUser);
+                            }
+                            count.quantUsers--;
                             break;
                         case 2:
-                            excludeUser(&cadUser[buscaEmail(&cadUser)], &count);
+                            buscaEmail(&cadUser, &count);
+                            for (; count.posExc != count.quantUsers; count.posExc++){
+                                excludeUser(&cadUser);
+                            }
+                            count.quantUsers--;
                             break;
                         }
                         break;
@@ -129,7 +137,10 @@ int main(){
                         printf("Qual destes deseja excluir?\n");
                         scanf("%d", &choices.buscaExc);
                         } while (choices.buscaExc < 0 || choices.buscaExc > count.quantUsers);
-                        excludeUser(&cadUser[choices.buscaExc], &count);
+                        for (int i = 0; i < count.quantUsers; i++){
+                            excludeUser(&cadUser);
+                        }
+                        count.quantUsers--;
                         break;
                     }
                     do{
@@ -159,10 +170,26 @@ int main(){
                         switch (choices.buscaEdit)
                         {
                         case 1:
-                            editUser(&cadUser[buscaID(&cadUser)], &count);
+                            buscaID(&cadUser, &count);
+                            count.posEdit = count.pos;
+                            pegaNome(&cadUser[count.posEdit]);
+                            pegaIdade(&cadUser[count.posEdit]);
+                            pegaSexo(&cadUser[count.posEdit]);
+                            pegaAltura(&cadUser[count.posEdit]);
+                            pegaEndereco(&cadUser[count.posEdit]);
+                            pegaVacina(&cadUser[count.posEdit]);
+                            pegaEmail(&cadUser[count.posEdit]);
                             break;
                         case 2:
-                            editUser(&cadUser[buscaEmail(&cadUser)], &count);
+                            buscaEmail(&cadUser, &count);
+                            count.posEdit = count.pos;
+                            pegaNome(&cadUser[count.posEdit]);
+                            pegaIdade(&cadUser[count.posEdit]);
+                            pegaSexo(&cadUser[count.posEdit]);
+                            pegaAltura(&cadUser[count.posEdit]);
+                            pegaEndereco(&cadUser[count.posEdit]);
+                            pegaVacina(&cadUser[count.posEdit]);
+                            pegaEmail(&cadUser[count.posEdit]);
                             break;
                         }
                         break;
@@ -176,7 +203,13 @@ int main(){
                         printf("Qual destes deseja editar?\n");
                         scanf("%d", &choices.buscaEdit);
                         } while (choices.buscaEdit < 0 || choices.buscaEdit > count.quantUsers);
-                        editUser(&cadUser[choices.buscaEdit], &count);
+                        pegaNome(&cadUser[choices.buscaEdit]);
+                        pegaIdade(&cadUser[choices.buscaEdit]);
+                        pegaSexo(&cadUser[choices.buscaEdit]);
+                        pegaAltura(&cadUser[choices.buscaEdit]);
+                        pegaEndereco(&cadUser[choices.buscaEdit]);
+                        pegaVacina(&cadUser[choices.buscaEdit]);
+                        pegaEmail(&cadUser[choices.buscaEdit]);
                         break;
                     }
                     do{
@@ -347,9 +380,20 @@ void printUser(dadosUser *printUser){
     printf("Bairro: %s\n", printUser->endereco.bairro);
     printf("Numero da casa: %d\n", printUser->endereco.casa);
     printf("CEP: %d\n", printUser->endereco.CEP);
-    printf("Quadra: %d\n", printUser->endereco.Quadra);
+    printf("Quadra: %s\n", printUser->endereco.Quadra);
 }
 
-void excludeUser(dadosUser *exUser, contadores *exCounts){
-
+void excludeUser(dadosUser *exUser){
+    int j;
+    for (int j = ; j != contUser; j++){
+        for (posUser = 0; posUser != j; posUser++){
+            excludeID[posUser] = excludeID[j];
+            excludeAltura[posUser] = excludeAltura[j];
+            excludeVacina[posUser] = excludeVacina[j];
+            strcpy(&excludeNome[posUser], &excludeNome[j]);
+            strcpy(&excludeEmail[posUser], &excludeEmail[j]);
+            strcpy(&excludeSexo[posUser], &excludeSexo[j]);
+            strcpy(&excludeEndereco[posUser], &excludeEndereco[j]);
+        }
+    }
 }

@@ -20,8 +20,13 @@ typedef struct {
 } dadosUser;
 
 typedef struct {
-    int quantUsers, posCad, posedit, posSalva, posExc, posEdit, pos;
+    int quantUsers, posCad, posedit, posSalva, posExc, posEdit, pos, i;
 } contadores;
+
+typedef struct {
+    int IDBusca;
+    char emailBusca[100];
+} complementares;
 
 typedef struct {
     int choiceInic, final, choiceCad, choiceExc, choiceFinalExc, buscaExc, escID, choiceEdit, buscaEdit, choiceFinalEdit;
@@ -40,13 +45,11 @@ void pegaAltura(dadosUser *CadUser);
 void pegaEndereco(dadosUser *CadUser);
 void pegaVacina(dadosUser *CadUser);
 void pegaEmail(dadosUser *CadUser);
-void limpaTela();
 void printUser(dadosUser *printUser);
-void excludeUser(dadosUser *exUser);//fazer
-void editUser(dadosUser *editUser);//fazer
-// void backupUser();
-void buscaID(dadosUser *User, contadores *Counts);//fazer
-void buscaEmail(dadosUser *User, contadores *Counts);//fazer
+void backupUser();
+void buscaID(dadosUser *User, contadores *Counts, complementares *comp);
+void buscaEmail(dadosUser *User, contadores *Counts, complementares *comp);
+void limpaTela();
 
 //Fim das Funções
 
@@ -56,6 +59,7 @@ int main(){
     dadosUser cadUser[1000];
     contadores count;
     choices choices;
+    complementares comp;
 
     for (int j = 0; j != 1000; j++){
         inicializarStruct(&cadUser[j], &count, &choices);
@@ -63,6 +67,7 @@ int main(){
 
     do{
         do{
+            limpaTela();
             printf("Bem vindo ao menu\nEscolha a opcao que deseja\n");
             printf("\nDigite 1 - Caso queira registrar novos usuarios\nDigite 2 - Caso queira excluir algum usuario\nDigite 3 - Caso queira editar os dados de algum usuario\nDigite 4 - Caso queira abrir o menu de Backup\nDigite 5 - Caso queira ver a lista de todos os cadastros\nDigite 6 - Caso queira encerrar a sessao\n");
             scanf("%d", &choices.choiceInic);
@@ -73,22 +78,22 @@ int main(){
                 printf("Preencha os dados a seguir para concluir o cadastro\n");
 
                 do{
-                pegaID(&cadUser[count.quantUsers], &count);
-                pegaNome(&cadUser[count.quantUsers]);
-                pegaIdade(&cadUser[count.quantUsers]);
-                pegaSexo(&cadUser[count.quantUsers]);
-                pegaAltura(&cadUser[count.quantUsers]);
-                pegaEndereco(&cadUser[count.quantUsers]);
-                pegaVacina(&cadUser[count.quantUsers]);
-                pegaEmail(&cadUser[count.quantUsers]);
+                    pegaID(&cadUser[count.quantUsers], &count);
+                    pegaNome(&cadUser[count.quantUsers]);
+                    pegaIdade(&cadUser[count.quantUsers]);
+                    pegaSexo(&cadUser[count.quantUsers]);
+                    pegaAltura(&cadUser[count.quantUsers]);
+                    pegaEndereco(&cadUser[count.quantUsers]);
+                    pegaVacina(&cadUser[count.quantUsers]);
+                    pegaEmail(&cadUser[count.quantUsers]);
 
-                printUser(&cadUser[count.quantUsers]);
+                    printUser(&cadUser[count.quantUsers]);
 
-                count.quantUsers++;
-                i = count.quantUsers;
-                printf("A quantidade de cadastros em aberto: %d\nA quantidade de cadastros atuais: %d: \n", 1000 - i, count.quantUsers);
-                printf("Deseja cadastrar mais alguem? 0 - SIM  1 - NAO\n");
-                scanf("%d", &choices.choiceCad);
+                    count.quantUsers++;
+                    i = count.quantUsers;
+                    printf("A quantidade de cadastros em aberto: %d\nA quantidade de cadastros atuais: %d: \n", 1000 - i, count.quantUsers);
+                    printf("Deseja cadastrar mais alguem? 0 - SIM  1 - NAO\n");
+                    scanf("%d", &choices.choiceCad);
                 } while (choices.choiceCad != 1);
                 break;
 
@@ -99,53 +104,88 @@ int main(){
 
                 do{
                     do{
-                    printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
-                    scanf("%d", &choices.choiceExc);
+                        printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
+                        scanf("%d", &choices.choiceExc);
                     } while(choices.choiceExc != 1 || choices.choiceExc != 2);
 
                     switch (choices.choiceExc){
                     case 1:
                         do{
-                        printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
-                        scanf("%d", &choices.buscaExc);
+                            printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
+                            scanf("%d", &choices.buscaExc);
                         } while (choices.buscaExc != 1 || choices.buscaExc != 2);
-                        switch (choices.buscaExc)
-                        {
+
+                        switch (choices.buscaExc){
                         case 1:
-                            buscaID(&cadUser, &count);
-                            for (int i = count.quantUsers; i > count.posExc; i--){
-                                excludeUser(&cadUser);
+                            for ( count.i = 0; i != count.quantUsers; count.i++)
+                                buscaID(&cadUser[count.i], &count, &comp);
+
+                            count.posExc = count.pos;
+                            for (; count.posExc != count.quantUsers; count.posExc++){
+                                for (int j = count.posExc + 1; j != count.quantUsers; j++){
+                                    cadUser[count.posExc].ID = cadUser[j].ID;
+                                    cadUser[count.posExc].altura = cadUser[j].altura;
+                                    cadUser[count.posExc].vacina = cadUser[j].vacina;
+                                    strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
+                                    strcpy(cadUser[count.posExc].email, cadUser[j].email);
+                                    strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
+                                    strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
+                                }
                             }
                             count.quantUsers--;
                             break;
+
                         case 2:
-                            buscaEmail(&cadUser, &count);
+                            for ( count.i = 0; i != count.quantUsers; count.i++)
+                                buscaEmail(&cadUser[count.i], &count, &comp);
+                            
+                            count.posExc = count.pos;
                             for (; count.posExc != count.quantUsers; count.posExc++){
-                                excludeUser(&cadUser);
+                                for (int j = count.posExc + 1; j != count.quantUsers; j++){
+                                    cadUser[count.posExc].ID = cadUser[j].ID;
+                                    cadUser[count.posExc].altura = cadUser[j].altura;
+                                    cadUser[count.posExc].vacina = cadUser[j].vacina;
+                                    strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
+                                    strcpy(cadUser[count.posExc].email, cadUser[j].email);
+                                    strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
+                                    strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
+                                }
                             }
                             count.quantUsers--;
                             break;
                         }
-                        break;
+                
 
                     case 2:
                         for (int i = 0; i != count.quantUsers; i++){
                             printf("A posicao: %d\n", i);
                             printUser(&cadUser[i]);
                         }
+
                         do{
-                        printf("Qual destes deseja excluir?\n");
-                        scanf("%d", &choices.buscaExc);
+                            printf("Qual destes deseja excluir?\n");
+                            scanf("%d", &choices.buscaExc);
                         } while (choices.buscaExc < 0 || choices.buscaExc > count.quantUsers);
-                        for (int i = 0; i < count.quantUsers; i++){
-                            excludeUser(&cadUser);
-                        }
+
+                        count.posExc = choices.buscaExc;
+
+                        for (; count.posExc != count.quantUsers; count.posExc++){
+                                for (int j = count.posExc + 1; j != count.quantUsers; j++){
+                                    cadUser[count.posExc].ID = cadUser[j].ID;
+                                    cadUser[count.posExc].altura = cadUser[j].altura;
+                                    cadUser[count.posExc].vacina = cadUser[j].vacina;
+                                    strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
+                                    strcpy(cadUser[count.posExc].email, cadUser[j].email);
+                                    strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
+                                    strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
+                                }
+                            }
                         count.quantUsers--;
                         break;
                     }
                     do{
-                    printf("Deseja excluir mais algum usuario? 0-SIM 1-NAO\n");
-                    scanf("%d", &choices.choiceFinalExc);
+                        printf("Deseja excluir mais algum usuario? 0-SIM 1-NAO\n");
+                        scanf("%d", &choices.choiceFinalExc);
                     }while(choices.choiceFinalExc != 1 || choices.choiceFinalExc != 0);
                 }while(choices.choiceFinalExc != 1);
                 break;
@@ -157,20 +197,22 @@ int main(){
 
                 do{
                     do{
-                    printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
-                    scanf("%d", &choices.choiceEdit);
+                        printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
+                        scanf("%d", &choices.choiceEdit);
                     } while(choices.choiceEdit != 1 || choices.choiceEdit != 2);
 
                     switch (choices.choiceEdit){
                     case 1:
                         do{
-                        printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
-                        scanf("%d", &choices.buscaEdit);
+                            printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
+                            scanf("%d", &choices.buscaEdit);
                         } while (choices.buscaEdit != 1 || choices.buscaEdit != 2);
                         switch (choices.buscaEdit)
                         {
                         case 1:
-                            buscaID(&cadUser, &count);
+                            for ( count.i = 0; i != count.quantUsers; count.i++)
+                                buscaID(&cadUser[count.i], &count, &comp);
+
                             count.posEdit = count.pos;
                             pegaNome(&cadUser[count.posEdit]);
                             pegaIdade(&cadUser[count.posEdit]);
@@ -181,7 +223,9 @@ int main(){
                             pegaEmail(&cadUser[count.posEdit]);
                             break;
                         case 2:
-                            buscaEmail(&cadUser, &count);
+                            for ( count.i = 0; i != count.quantUsers; count.i++)
+                                buscaEmail(&cadUser[count.i], &count, &comp);
+
                             count.posEdit = count.pos;
                             pegaNome(&cadUser[count.posEdit]);
                             pegaIdade(&cadUser[count.posEdit]);
@@ -234,6 +278,7 @@ int main(){
                 break;
 
             case 5://printa usuarios
+                limpaTela();
                 for (i = 0; i != count.quantUsers; i++){
                     int j = i + 1;
                     printf("Posiçao: %d\n", j);
@@ -242,6 +287,7 @@ int main(){
                 break;
 
             case 6://Encerrar sessao
+                limpaTela();
                 printf("Obrigado pelo tempo, até uma proxima vez");
                 choices.final = 6;
                 break;
@@ -310,7 +356,7 @@ void pegaSexo(dadosUser *cadUser){
         fflush(stdin);
         fgets(cadUser->sexo, 10, stdin);
 
-        if (stricmp(cadUser->sexo, "NDA\n") == 0 || stricmp(cadUser->sexo, "Mulher\n") == 0 || stricmp(cadUser->sexo, "Homem\n") == 0){
+        if (strcmp(cadUser->sexo, "NDA\n") == 0 || strcmp(cadUser->sexo, "Mulher\n") == 0 || strcmp(cadUser->sexo, "Homem\n") == 0){
             i = 0;
         }
     } while (i == 1);
@@ -319,7 +365,7 @@ void pegaSexo(dadosUser *cadUser){
 void pegaAltura(dadosUser *cadUser){
     do{
         printf("Qual a altura do usuario?\n");
-        scanf("%lf", cadUser->altura);
+        scanf("%lf", &cadUser->altura);
     } while (cadUser->altura < 1 || cadUser->altura > 2);
 }
 
@@ -328,7 +374,7 @@ void pegaEndereco(dadosUser *cadUser){
         printf("Qual o bairro do usuário?\n");
         fflush(stdin);
         fgets(cadUser->endereco.bairro, 100, stdin);
-    } while (strlen(cadUser->endereco.bairro < 2));
+    } while (strlen(cadUser->endereco.bairro) < 2);
     do{
         printf("Qual o numero da casa do usuário?\n");
         scanf("%d", &cadUser->endereco.casa);
@@ -339,8 +385,8 @@ void pegaEndereco(dadosUser *cadUser){
     } while (cadUser->endereco.CEP < 0);
     do{
         printf("Qual a quadra do usuário?\n");
-        scanf("%s", &cadUser->endereco.Quadra);
-    } while (cadUser->endereco.Quadra < 0);
+        fgets(cadUser->endereco.Quadra, 100, stdin);
+    } while (strlen(cadUser->endereco.Quadra) < 2);
 }
 
 void pegaVacina(dadosUser *cadUser){
@@ -352,11 +398,11 @@ void pegaVacina(dadosUser *cadUser){
         fflush(stdin);
         fgets(pergVacina, 10, stdin);
 
-        if (stricmp(pergVacina, "sim\n" == 0)){
+        if (strcmp(pergVacina, "sim\n") == 0){
             cadUser->vacina = true;
             i = 1;
         }
-        else if(stricmp(pergVacina, "nao\n" == 0)){
+        else if(strcmp(pergVacina, "nao\n") == 0){
             cadUser->vacina = false;
             i = 1;
         }
@@ -381,19 +427,31 @@ void printUser(dadosUser *printUser){
     printf("Numero da casa: %d\n", printUser->endereco.casa);
     printf("CEP: %d\n", printUser->endereco.CEP);
     printf("Quadra: %s\n", printUser->endereco.Quadra);
+
+    if (printUser->vacina == true){
+        printf("O usuario tomou a vacina\n");
+    }
+
+    else{
+        printf("O usuario nao tomou a vacina\n");
+    }
 }
 
-void excludeUser(dadosUser *exUser){
-    int j;
-    for (int j = ; j != contUser; j++){
-        for (posUser = 0; posUser != j; posUser++){
-            excludeID[posUser] = excludeID[j];
-            excludeAltura[posUser] = excludeAltura[j];
-            excludeVacina[posUser] = excludeVacina[j];
-            strcpy(&excludeNome[posUser], &excludeNome[j]);
-            strcpy(&excludeEmail[posUser], &excludeEmail[j]);
-            strcpy(&excludeSexo[posUser], &excludeSexo[j]);
-            strcpy(&excludeEndereco[posUser], &excludeEndereco[j]);
-        }
+void backupUser(){
+    int backId[1000], backIdade[1000], backcontUser;
+    bool backVacina[1000];
+    double backAltura[1000];
+    char backNome[1000][100], backEmail[1000][100], backSexo[1000][100], backEndereco[1000][100];
+}
+
+void buscaID(dadosUser *User, contadores *Counts, complementares *comp){
+    if (comp->IDBusca == User->ID){
+        Counts->pos = Counts->i;
+    }
+}
+
+void buscaEmail(dadosUser *User, contadores *Counts, complementares *comp){
+    if (strcmp(comp->emailBusca, User->email) == 0){
+        Counts->pos = Counts->i;
     }
 }

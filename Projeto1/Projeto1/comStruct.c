@@ -209,9 +209,9 @@ int main(){
                             printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
                             scanf("%d", &choices.buscaEdit);
                         } while (choices.buscaEdit < 1 && choices.buscaEdit > 2);
-                        switch (choices.buscaEdit)
-                        {
+                        switch (choices.buscaEdit){
                         case 1:
+                            printf("");//Peguntar o valor, e fazer o retorno caso n ache
                             for ( count.i = 0; i != count.quantUsers; count.i++)
                                 buscaID(&cadUser[count.i], &count, &comp);
 
@@ -259,7 +259,7 @@ int main(){
                         break;
                     }
                     do{
-                    printf("Deseja excluir mais algum usuario? 1-SIM 2-NAO\n");
+                    printf("Deseja editar mais algum usuario? 1-SIM 2-NAO\n");
                     scanf("%d", &choices.choiceFinalEdit);
                     }while(choices.choiceFinalEdit < 1 && choices.choiceFinalEdit > 2);
                 } while (choices.choiceFinalEdit != 2);
@@ -279,11 +279,10 @@ int main(){
                 // printf("Backup feito desses usuarios\n");
                 break;
 
-            case 5://printa usuarios
+            case 5://printa usuarios //nao funciona
                 limpaTela();
                 for (i = 0; i != count.quantUsers; i++){
-                    int j = i + 1;
-                    printf("Posiçao: %d\n", j);
+                    printf("Posiçao: %d\n", i);
                     printUser(&cadUser[i]);
                 }
                 break;

@@ -20,23 +20,23 @@ typedef struct {
 } dadosUser;
 
 typedef struct {
-    int quantUsers, posCad, posedit, posSalva, posExc, posEdit, pos, i;
+    int quantUsers, posCad, posedit, posSalva, posExc, posEdit, pos, i, backContUser;
 } contadores;
 
 typedef struct {
-    int IDBusca;
+    int IDBusca, achou;
     char emailBusca[100];
 } complementares;
 
 typedef struct {
-    int choiceInic, final, choiceCad, choiceExc, choiceFinalExc, buscaExc, escID, choiceEdit, buscaEdit, choiceFinalEdit;
+    int choiceInic, final, choiceCad, choiceExc, choiceFinalExc, buscaExc, escID, choiceEdit, buscaEdit, choiceFinalEdit, backIn, choiceFinalBack;
 } choices;
 //Fim de Structs
 
 //print user e dar a oferta de editar ou excluir o user em base da pos
 
 //Declaração das Funções 
-void inicializarStruct(dadosUser *inCadUser, contadores *inCounts, choices *inChoices);//editar todas as var
+void inicializarStruct(dadosUser *inCadUser, contadores *inCounts, choices *inChoices, complementares *inComp);//editar todas as var
 void pegaID(dadosUser *CadUser, contadores *Counts);
 void pegaNome(dadosUser *CadUser);
 void pegaIdade(dadosUser *CadUser);
@@ -46,29 +46,32 @@ void pegaEndereco(dadosUser *CadUser);
 void pegaVacina(dadosUser *CadUser);
 void pegaEmail(dadosUser *CadUser);
 void printUser(dadosUser *printUser);
-// void backupUser();
+void saveBack(dadosUser *saveBack, dadosUser *user, contadores *backCounts);
+void fazBack(dadosUser *saveBack, dadosUser *user, contadores *backCounts);
 void buscaID(dadosUser *User, contadores *Counts, complementares *comp);
 void buscaEmail(dadosUser *User, contadores *Counts, complementares *comp);
 void limpaTela();
+void statusQuant(contadores *Counts);
 
 //Fim das Funções
 
 //Main
 int main(){
-    int quantTotal = 0, quantAtual = 0, i = 0;
+    int i = 0;
     dadosUser cadUser[1000];
+    dadosUser backupUser[1000];
     contadores count;
     choices choices;
     complementares comp;
 
-    for (int j = 0; j != 1000; j++){
-        inicializarStruct(&cadUser[j], &count, &choices);
-    }
+    for (int j = 0; j != 1000; j++)
+        inicializarStruct(&cadUser[j], &count, &choices, &comp);
 
     do{
         do{
             limpaTela();
-            printf("Bem vindo ao menu\nEscolha a opcao que deseja\n");
+            printf("Bem vindo ao menu\nEscolha a opcao que deseja\n\n");
+            statusQuant(&count);
             printf("\nDigite 1 - Caso queira registrar novos usuarios\nDigite 2 - Caso queira excluir algum usuario\nDigite 3 - Caso queira editar os dados de algum usuario\nDigite 4 - Caso queira abrir o menu de Backup\nDigite 5 - Caso queira ver a lista de todos os cadastros\nDigite 6 - Caso queira encerrar a sessao\n");
             scanf("%d", &choices.choiceInic);
             switch (choices.choiceInic){
@@ -87,11 +90,12 @@ int main(){
                     pegaVacina(&cadUser[count.quantUsers]);
                     pegaEmail(&cadUser[count.quantUsers]);
 
+                    limpaTela();
+
                     printUser(&cadUser[count.quantUsers]);
 
                     count.quantUsers++;
-                    i = count.quantUsers;
-                    printf("A quantidade de cadastros em aberto: %d\nA quantidade de cadastros atuais: %d \n", 1000 - i, count.quantUsers);
+                    statusQuant(&count);
                     do{
                         printf("Deseja cadastrar mais alguem? 1 - SIM  2 - NAO\n");
                         scanf("%d", &choices.choiceCad);
@@ -104,44 +108,94 @@ int main(){
                 printf("_________________Excluir___________________\n");
                 printf("Preencha os dados a seguir para excluir um usuario\n");
 
-                do{
+                if (count.quantUsers > 0){
                     do{
-                        printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
-                        scanf("%d", &choices.choiceExc);
-                    } while(choices.choiceExc < 1 && choices.choiceExc > 2);
-
-                    switch (choices.choiceExc){
-                    case 1:
                         do{
-                            printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
-                            scanf("%d", &choices.buscaExc);
-                        } while (choices.buscaExc < 1 && choices.buscaExc > 2);
+                            printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
+                            scanf("%d", &choices.choiceExc);
+                        } while(choices.choiceExc < 1 && choices.choiceExc > 2);
 
-                        switch (choices.buscaExc){
+                        switch (choices.choiceExc){
                         case 1:
-                            for ( count.i = 0; i != count.quantUsers; count.i++)
-                                buscaID(&cadUser[count.i], &count, &comp);
+                            do{
+                                printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
+                                scanf("%d", &choices.buscaExc);
+                            } while (choices.buscaExc < 1 && choices.buscaExc > 2);
 
-                            count.posExc = count.pos;
-                            for (; count.posExc != count.quantUsers; count.posExc++){
-                                for (int j = count.posExc + 1; j != count.quantUsers; j++){
-                                    cadUser[count.posExc].ID = cadUser[j].ID;
-                                    cadUser[count.posExc].altura = cadUser[j].altura;
-                                    cadUser[count.posExc].vacina = cadUser[j].vacina;
-                                    strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
-                                    strcpy(cadUser[count.posExc].email, cadUser[j].email);
-                                    strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
-                                    strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
-                                }
+                            switch (choices.buscaExc){
+                                case 1:
+                                    printf("Qual o ID que deseja procurar?\n");
+                                    scanf("%d", &comp.IDBusca);
+                                    for ( count.i = 0; count.i != count.quantUsers; count.i++)
+                                        buscaID(&cadUser[count.i], &count, &comp);
+                                    
+                                    if (comp.achou == 1){
+                                        count.posExc = count.pos;
+                                        for (; count.posExc != count.quantUsers; count.posExc++){
+                                            for (int j = count.posExc + 1; j != count.quantUsers; j++){
+                                                cadUser[count.posExc].ID = cadUser[j].ID;
+                                                cadUser[count.posExc].altura = cadUser[j].altura;
+                                                cadUser[count.posExc].vacina = cadUser[j].vacina;
+                                                strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
+                                                strcpy(cadUser[count.posExc].email, cadUser[j].email);
+                                                strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
+                                                strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
+                                            }
+                                        }
+                                        count.quantUsers--;
+                                        statusQuant(&count);
+                                    } else {
+                                        printf("Valor nao encontrado\nDigite um inteiro para seguir\n");
+                                        scanf("%d", &i);
+                                        i = 0;
+                                    }
+                                    break;
+
+                                case 2:
+                                    printf("Qual o email que deseja procurar?\n");
+                                    fflush(stdin);
+                                    fgets(comp.emailBusca, 100, stdin);
+
+                                    for ( count.i = 0; count.i != count.quantUsers; count.i++)
+                                        buscaEmail(&cadUser[count.i], &count, &comp);
+
+                                    if (comp.achou == 1){
+                                        count.posExc = count.pos;
+                                        for (; count.posExc != count.quantUsers; count.posExc++){
+                                            for (int j = count.posExc + 1; j != count.quantUsers; j++){
+                                                cadUser[count.posExc].ID = cadUser[j].ID;
+                                                cadUser[count.posExc].altura = cadUser[j].altura;
+                                                cadUser[count.posExc].vacina = cadUser[j].vacina;
+                                                strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
+                                                strcpy(cadUser[count.posExc].email, cadUser[j].email);
+                                                strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
+                                                strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
+                                            }
+                                        }
+                                    count.quantUsers--;
+                                    statusQuant(&count);
+                                    } else {
+                                        printf("Valor nao encontrado\n");
+                                        scanf("%d", &i);
+                                        i = 0;
+                                    }
+                                    break;
                             }
-                            count.quantUsers--;
                             break;
 
                         case 2:
-                            for ( count.i = 0; i != count.quantUsers; count.i++)
-                                buscaEmail(&cadUser[count.i], &count, &comp);
-                            
-                            count.posExc = count.pos;
+                            for (int i = 0; i != count.quantUsers; i++){
+                            printf("A posicao: %d\n", i);
+                            printUser(&cadUser[i]);
+                            }
+
+                            do{
+                                printf("Qual destes deseja excluir?\n");
+                                scanf("%d", &choices.buscaExc);
+                            } while (choices.buscaExc < 0 || choices.buscaExc > count.quantUsers);
+
+                            count.posExc = choices.buscaExc;
+
                             for (; count.posExc != count.quantUsers; count.posExc++){
                                 for (int j = count.posExc + 1; j != count.quantUsers; j++){
                                     cadUser[count.posExc].ID = cadUser[j].ID;
@@ -154,42 +208,19 @@ int main(){
                                 }
                             }
                             count.quantUsers--;
+                            statusQuant(&count);
                             break;
                         }
-                
-
-                    case 2:
-                        for (int i = 0; i != count.quantUsers; i++){
-                            printf("A posicao: %d\n", i);
-                            printUser(&cadUser[i]);
-                        }
-
                         do{
-                            printf("Qual destes deseja excluir?\n");
-                            scanf("%d", &choices.buscaExc);
-                        } while (choices.buscaExc < 0 || choices.buscaExc > count.quantUsers);
-
-                        count.posExc = choices.buscaExc;
-
-                        for (; count.posExc != count.quantUsers; count.posExc++){
-                                for (int j = count.posExc + 1; j != count.quantUsers; j++){
-                                    cadUser[count.posExc].ID = cadUser[j].ID;
-                                    cadUser[count.posExc].altura = cadUser[j].altura;
-                                    cadUser[count.posExc].vacina = cadUser[j].vacina;
-                                    strcpy(cadUser[count.posExc].nome, cadUser[j].nome);
-                                    strcpy(cadUser[count.posExc].email, cadUser[j].email);
-                                    strcpy(cadUser[count.posExc].sexo, cadUser[j].sexo);
-                                    strcpy(cadUser[count.posExc].endereco.bairro, cadUser[j].endereco.bairro);
-                                }
-                            }
-                        count.quantUsers--;
-                        break;
-                    }
-                    do{
-                        printf("Deseja excluir mais algum usuario? 1-SIM 2-NAO\n");
-                        scanf("%d", &choices.choiceFinalExc);
-                    }while(choices.choiceFinalExc < 1 && choices.choiceFinalExc > 2);
-                }while(choices.choiceFinalExc != 2);
+                            printf("Deseja excluir mais algum usuario? 1-SIM 2-NAO\n");
+                            scanf("%d", &choices.choiceFinalExc);
+                        }while(choices.choiceFinalExc < 1 && choices.choiceFinalExc > 2);
+                    }while(choices.choiceFinalExc != 2);
+                } else {
+                    printf("Quantidade insuficiente de usuarios\nDigite um inteiro para seguir\n");
+                    scanf("%d", &i);
+                    i = 0;
+                }
                 break;
 
             case 3://Editar usuario
@@ -197,72 +228,102 @@ int main(){
                 printf("_________________Editar___________________\n");
                 printf("Preencha os dados a seguir para editar um usuario\n");
 
-                do{
+                if (count.quantUsers > 0){
                     do{
-                        printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
-                        scanf("%d", &choices.choiceEdit);
-                    } while(choices.choiceEdit < 1 && choices.choiceEdit > 2);
-
-                    switch (choices.choiceEdit){
-                    case 1:
                         do{
-                            printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
-                            scanf("%d", &choices.buscaEdit);
-                        } while (choices.buscaEdit < 1 && choices.buscaEdit > 2);
-                        switch (choices.buscaEdit){
+                            printf("Sabe o ID ou email do usuario? 1-SIM 2-NAO\n");
+                            scanf("%d", &choices.choiceEdit);
+                        } while(choices.choiceEdit < 1 && choices.choiceEdit > 2);
+
+                        switch (choices.choiceEdit){
                         case 1:
-                            printf("");//Peguntar o valor, e fazer o retorno caso n ache
-                            for ( count.i = 0; i != count.quantUsers; count.i++)
-                                buscaID(&cadUser[count.i], &count, &comp);
+                            do{
+                                printf("Deseja encontrar o usuario atraves do ID ou Email? 1-ID 2-EMAIL\n");
+                                scanf("%d", &choices.buscaEdit);
+                            } while (choices.buscaEdit < 1 && choices.buscaEdit > 2);
+                            switch (choices.buscaEdit){
+                            case 1:
+                                printf("Qual o ID que deseja procurar?\n");
+                                scanf("%d", &comp.IDBusca);
 
-                            count.posEdit = count.pos;
-                            pegaNome(&cadUser[count.posEdit]);
-                            pegaIdade(&cadUser[count.posEdit]);
-                            pegaSexo(&cadUser[count.posEdit]);
-                            pegaAltura(&cadUser[count.posEdit]);
-                            pegaEndereco(&cadUser[count.posEdit]);
-                            pegaVacina(&cadUser[count.posEdit]);
-                            pegaEmail(&cadUser[count.posEdit]);
+                                for (count.i = 0; count.i < count.quantUsers; count.i++)
+                                    buscaID(&cadUser[count.i], &count, &comp);
+
+                                if (comp.achou == 1){
+                                    count.posEdit = count.pos;
+                                    pegaNome(&cadUser[count.posEdit]);
+                                    pegaIdade(&cadUser[count.posEdit]);
+                                    pegaSexo(&cadUser[count.posEdit]);
+                                    pegaAltura(&cadUser[count.posEdit]);
+                                    pegaEndereco(&cadUser[count.posEdit]);
+                                    pegaVacina(&cadUser[count.posEdit]);
+                                    pegaEmail(&cadUser[count.posEdit]);
+
+                                    printUser(&cadUser[choices.buscaEdit]);
+                                } else {
+                                    printf("Valor nao encontrado\nDigite um inteiro para seguir\n");
+                                    scanf("%d", &i);
+                                    i = 0;
+                                }
+                                break;
+                            case 2:
+                                printf("Qual o email que deseja procura\n");
+                                fflush(stdin);
+                                fgets(comp.emailBusca, 100, stdin);
+
+                                for ( count.i = 0; count.i != count.quantUsers; count.i++)
+                                    buscaEmail(&cadUser[count.i], &count, &comp);
+
+                                if (comp.achou == 1){
+                                    count.posEdit = count.pos;
+                                    pegaNome(&cadUser[count.posEdit]);
+                                    pegaIdade(&cadUser[count.posEdit]);
+                                    pegaSexo(&cadUser[count.posEdit]);
+                                    pegaAltura(&cadUser[count.posEdit]);
+                                    pegaEndereco(&cadUser[count.posEdit]);
+                                    pegaVacina(&cadUser[count.posEdit]);
+                                    pegaEmail(&cadUser[count.posEdit]);
+
+                                    printUser(&cadUser[choices.buscaEdit]);
+                                } else {
+                                    printf("Valor nao encontrado\nDigite um inteiro para seguir\n");
+                                    scanf("%d", &i);
+                                    i = 0;
+                                }
+                                break;
+                            }
                             break;
+
                         case 2:
-                            for ( count.i = 0; i != count.quantUsers; count.i++)
-                                buscaEmail(&cadUser[count.i], &count, &comp);
+                            for (int i = 0; i != count.quantUsers; i++){
+                                printf("A posicao: %d\n", i);
+                                printUser(&cadUser[i]);
+                            }
+                            do{
+                                printf("Qual destes deseja editar?\n");
+                                scanf("%d", &choices.buscaEdit);
+                            } while (choices.buscaEdit < 0 || choices.buscaEdit > count.quantUsers);
+                            pegaNome(&cadUser[choices.buscaEdit]);
+                            pegaIdade(&cadUser[choices.buscaEdit]);
+                            pegaSexo(&cadUser[choices.buscaEdit]);
+                            pegaAltura(&cadUser[choices.buscaEdit]);
+                            pegaEndereco(&cadUser[choices.buscaEdit]);
+                            pegaVacina(&cadUser[choices.buscaEdit]);
+                            pegaEmail(&cadUser[choices.buscaEdit]);
 
-                            count.posEdit = count.pos;
-                            pegaNome(&cadUser[count.posEdit]);
-                            pegaIdade(&cadUser[count.posEdit]);
-                            pegaSexo(&cadUser[count.posEdit]);
-                            pegaAltura(&cadUser[count.posEdit]);
-                            pegaEndereco(&cadUser[count.posEdit]);
-                            pegaVacina(&cadUser[count.posEdit]);
-                            pegaEmail(&cadUser[count.posEdit]);
+                            printUser(&cadUser[choices.buscaEdit]);
                             break;
-                        }
-                        break;
-
-                    case 2:
-                        for (int i = 0; i != count.quantUsers; i++){
-                            printf("A posicao: %d\n", i);
-                            printUser(&cadUser[i]);
                         }
                         do{
-                        printf("Qual destes deseja editar?\n");
-                        scanf("%d", &choices.buscaEdit);
-                        } while (choices.buscaEdit < 0 || choices.buscaEdit > count.quantUsers);
-                        pegaNome(&cadUser[choices.buscaEdit]);
-                        pegaIdade(&cadUser[choices.buscaEdit]);
-                        pegaSexo(&cadUser[choices.buscaEdit]);
-                        pegaAltura(&cadUser[choices.buscaEdit]);
-                        pegaEndereco(&cadUser[choices.buscaEdit]);
-                        pegaVacina(&cadUser[choices.buscaEdit]);
-                        pegaEmail(&cadUser[choices.buscaEdit]);
-                        break;
-                    }
-                    do{
-                    printf("Deseja editar mais algum usuario? 1-SIM 2-NAO\n");
-                    scanf("%d", &choices.choiceFinalEdit);
-                    }while(choices.choiceFinalEdit < 1 && choices.choiceFinalEdit > 2);
-                } while (choices.choiceFinalEdit != 2);
+                            printf("Deseja editar mais algum usuario? 1-SIM 2-NAO\n");
+                            scanf("%d", &choices.choiceFinalEdit);
+                        }while(choices.choiceFinalEdit < 1 && choices.choiceFinalEdit > 2);
+                    } while (choices.choiceFinalEdit != 2);
+                } else{
+                    printf("Quantidade insuficiente de usuarios\nDigite um inteiro para seguir\n");
+                    scanf("%d", &i);
+                    i = 0;
+                }
                 break;
 
             case 4://Backup
@@ -271,20 +332,58 @@ int main(){
                 printf("Preencha os dados a seguir para fazer o backup dos usuarios\n");
                 printf("O backup salvara todos os dados atuais, e quando necessario, ira substituir todos os presentes naquele momento\n");
 
-                // for (int i = 0; i != count.quantUsers; i++){
-                //     printf("A posicao: %d\n", i);
-                //     printUser(&cadUser[i]);
-                //     backupUser(&cadUser[i]);
-                // }
-                // printf("Backup feito desses usuarios\n");
+                do{
+                    do{
+                        printf("Digite 1 - Para salvar os usuarios atuais\nDigite 2 - Para recuperar os usuarios salvos\n");
+                        scanf("%d", &choices.backIn);
+                    } while(choices.backIn > 2 || choices.backIn < 1);
+
+                    if (count.quantUsers > 0){
+                        switch (choices.backIn){
+                        case 1:
+                            for ( count.i = 0; count.i < count.quantUsers; count.i++){
+                                printUser(&cadUser[count.i]);
+                                saveBack(&backupUser[count.i], &cadUser[count.i], &count);
+                            }
+
+                            printf("O backup foi salvo com sucesso\nDigite um inteiro para seguir\n");
+                            scanf("%d", &i);
+                            i = 0;
+                            break;
+
+                        case 2:
+                            for ( count.i = 0; count.i < count.quantUsers; count.i++){
+                                fazBack(&backupUser[count.i], &cadUser[count.i], &count);
+                                printUser(&cadUser[count.i]);
+                            }
+                            printf("O backup foi realizado com sucesso\nDigite um inteiro para seguir\n");
+                            scanf("%d", &i);
+                            i = 0;
+                            break;
+                        }
+                    } else{
+                        printf("Quantia insuficiente de usuarios, faca pelo menos um cadastro\nDigite um inteiro para seguir\n");
+                        scanf("%d", &i);
+                        i = 0;
+                    }
+                    do{
+                        printf("Deseja fazer algo a mais no backup? 1-SIM 2-NAO\n");
+                        scanf("%d", &choices.choiceFinalBack);
+                    }while(choices.choiceFinalBack < 1 && choices.choiceFinalBack > 2);
+                } while (choices.choiceFinalBack != 2);
                 break;
 
-            case 5://printa usuarios //nao funciona
+            case 5://printa usuarios
                 limpaTela();
-                for (i = 0; i != count.quantUsers; i++){
-                    printf("Posiçao: %d\n", i);
+                printf("O total de users: %d\n", count.quantUsers);
+
+                for (int i = 0; i < count.quantUsers; i++){
+                    printf("A posicao: %d\n", i);
                     printUser(&cadUser[i]);
                 }
+                printf("Digite um inteiro para sair");
+                scanf("%d", &i);
+                i = 0;
                 break;
 
             case 6://Encerrar sessao
@@ -301,7 +400,7 @@ int main(){
 
 //criação das Funções
 
-void inicializarStruct(dadosUser *inCadUser, contadores *inCounts, choices *inChoices){
+void inicializarStruct(dadosUser *inCadUser, contadores *inCounts, choices *inChoices, complementares *inComp){
     inCadUser->ID = 0;
     inCadUser->idade = 0;
     inCadUser->altura = 0;
@@ -317,10 +416,13 @@ void inicializarStruct(dadosUser *inCadUser, contadores *inCounts, choices *inCh
     inChoices->choiceFinalExc = 0;
     inChoices->buscaExc = 0;
     inChoices->escID = 0;
+
+    inComp->achou = 0;
 }
 
 void limpaTela(){
     printf("\33[H\33[2J");
+    system("cls");
 }
 
 void pegaID(dadosUser *cadUser, contadores *Counts){
@@ -372,20 +474,20 @@ void pegaAltura(dadosUser *cadUser){
 
 void pegaEndereco(dadosUser *cadUser){
     do{
-        printf("Qual o bairro do usuário?\n");
+        printf("Qual o bairro do usuario?\n");
         fflush(stdin);
         fgets(cadUser->endereco.bairro, 100, stdin);
     } while (strlen(cadUser->endereco.bairro) < 2);
     do{
-        printf("Qual o numero da casa do usuário?\n");
+        printf("Qual o numero da casa do usuario?\n");
         scanf("%d", &cadUser->endereco.casa);
     } while (cadUser->endereco.casa < 0);
     do{
-        printf("Qual o CEP do usuário?\n");
+        printf("Qual o CEP do usuario?\n");
         scanf("%d", &cadUser->endereco.CEP);
     } while (cadUser->endereco.CEP < 0);
     do{
-        printf("Qual a quadra do usuário?\n");
+        printf("Qual a quadra do usuario?\n");
         fflush(stdin);
         fgets(cadUser->endereco.Quadra, 100, stdin);
     } while (strlen(cadUser->endereco.Quadra) < 2);
@@ -420,40 +522,73 @@ void pegaEmail(dadosUser *cadUser){
 }
 
 void printUser(dadosUser *printUser){
-    printf("ID: %d\n", printUser->ID);
-    printf("Nome: %s\n", printUser->nome);
-    printf("Sexo: %s\n", printUser->sexo);
+    printf("____________________________________\n");
+    printf("\nID: %d\n", printUser->ID);
+    printf("Nome: %s", printUser->nome);
+    printf("Sexo: %s", printUser->sexo);
     printf("Idade: %d\n", printUser->idade);
     printf("Altura: %.2lf\n", printUser->altura);
-    printf("Bairro: %s\n", printUser->endereco.bairro);
+    printf("Bairro: %s", printUser->endereco.bairro);
     printf("Numero da casa: %d\n", printUser->endereco.casa);
     printf("CEP: %d\n", printUser->endereco.CEP);
-    printf("Quadra: %s\n", printUser->endereco.Quadra);
+    printf("Quadra: %s", printUser->endereco.Quadra);
 
     if (printUser->vacina == true){
-        printf("O usuario tomou a vacina\n");
+        printf("O usuario tomou a vacina\n\n");
     }
 
     else{
-        printf("O usuario nao tomou a vacina\n");
+        printf("O usuario nao tomou a vacina\n\n");
     }
+    printf("____________________________________\n");
 }
 
-// void backupUser(){
-//     int backId[1000], backIdade[1000], backcontUser;
-//     bool backVacina[1000];
-//     double backAltura[1000];
-//     char backNome[1000][100], backEmail[1000][100], backSexo[1000][100], backEndereco[1000][100];
-// }
+void saveBack(dadosUser *saveBack, dadosUser *user, contadores *backCounts){
+    saveBack->ID = user->ID;
+    saveBack->endereco.casa = user->endereco.casa;
+    saveBack->endereco.CEP = user->endereco.CEP;
+    saveBack->idade = user->idade;
+    saveBack->altura = user->altura;
+    saveBack->vacina = user->vacina;
+    backCounts->backContUser = backCounts->quantUsers;
+    strcpy(saveBack->nome, user->nome);
+    strcpy(saveBack->email, user->email);
+    strcpy(saveBack->sexo, user->sexo);
+    strcpy(saveBack->endereco.bairro, user->endereco.bairro);
+    strcpy(saveBack->endereco.Quadra, user->endereco.Quadra);
+}
+
+void fazBack(dadosUser *saveBack, dadosUser *user, contadores *backCounts){
+    user->ID = saveBack->ID;
+    user->endereco.casa = saveBack->endereco.casa;
+    user->endereco.CEP = saveBack->endereco.CEP;
+    user->idade = saveBack->idade;
+    user->altura = saveBack->altura;
+    user->vacina = saveBack->vacina;
+    backCounts->quantUsers = backCounts->backContUser;
+    strcpy(user->nome, saveBack->nome);
+    strcpy(user->email, saveBack->email);
+    strcpy(user->sexo, saveBack->sexo);
+    strcpy(user->endereco.bairro, saveBack->endereco.bairro);
+    strcpy(user->endereco.Quadra, saveBack->endereco.Quadra);
+}
 
 void buscaID(dadosUser *User, contadores *Counts, complementares *comp){
     if (comp->IDBusca == User->ID){
         Counts->pos = Counts->i;
+        comp->achou = 1;
     }
 }
 
 void buscaEmail(dadosUser *User, contadores *Counts, complementares *comp){
     if (strcmp(comp->emailBusca, User->email) == 0){
         Counts->pos = Counts->i;
+        comp->achou = 1;
     }
+}
+
+void statusQuant(contadores *Counts){
+    int i;
+    i = Counts->quantUsers;
+    printf("A quantidade de cadastros em aberto: %d\nA quantidade de cadastros atuais: %d \n", 1000 - i, Counts->quantUsers);
 }
